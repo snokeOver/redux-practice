@@ -27,6 +27,8 @@ import {
   SelectValue,
 } from "../ui/select";
 import { useState } from "react";
+import { useAppDispatch } from "@/hooks/useApp";
+import { addTask } from "@/redux/taskSlice";
 
 const FormSchema = z.object({
   title: z.string().min(2, {
@@ -35,27 +37,33 @@ const FormSchema = z.object({
   description: z.string().min(2, {
     message: "Description must be at least 2 characters.",
   }),
-  duedate: z.date({
+  dueDate: z.date({
     required_error: "A due date is required.",
   }),
-  priority: z.string().min(1, {
-    message: "Please select a priority.",
+  priority: z.enum(["High", "Medium", "Low"], {
+    required_error: "Please select a priority.",
   }),
 });
 
 export function TaskForm() {
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const dispatch = useAppDispatch();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: "",
       description: "",
-      priority: "",
+      priority: "Low",
     },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("data", data);
+    const formattedData = {
+      ...data,
+      dueDate: data.dueDate.toISOString(),
+    };
+
+    dispatch(addTask(formattedData));
   }
 
   return (
@@ -87,7 +95,7 @@ export function TaskForm() {
         />
         <FormField
           control={form.control}
-          name="duedate"
+          name="dueDate"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>

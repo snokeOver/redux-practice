@@ -1,11 +1,11 @@
-import { createSlice } from "@reduxjs/toolkit/react";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit/react";
 
 export interface ITodo {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   dueDate: string;
-  isComplete: boolean;
+  isComplete?: boolean;
   priority: "High" | "Medium" | "Low";
 }
 
@@ -37,7 +37,13 @@ const initialState: IInitialState = {
 const taskSlice = createSlice({
   name: "task",
   initialState,
-  reducers: {},
+  reducers: {
+    addTask: (state, action: PayloadAction<ITodo>) => {
+      state.todos.push(action.payload);
+    },
+  },
 });
+
+export const { addTask } = taskSlice.actions;
 
 export default taskSlice.reducer;
